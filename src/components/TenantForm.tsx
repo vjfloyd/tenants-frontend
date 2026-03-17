@@ -22,10 +22,10 @@ export function TenantForm() {
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <div className="bg-white rounded-lg shadow-md p-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Tenant</h1>
-        <p className="text-gray-600 mb-8">Add a new tenant to your property</p>
+    <div className="max-w-full sm:max-w-2xl mx-auto">
+      <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 lg:p-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Create Tenant</h1>
+        <p className="text-gray-600 mb-6 sm:mb-8 text-sm sm:text-base">Add a new tenant to your property</p>
 
         {/* Success Message */}
         {isSuccess && successMessage && (
@@ -235,11 +235,11 @@ export function TenantForm() {
           </div>
 
           {/* Form Actions */}
-          <div className="flex gap-4 pt-4">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4">
             <button
               type="submit"
               disabled={isLoading}
-              className="flex-1 bg-blue-600 text-black font-medium py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full sm:flex-1 bg-blue-600 text-white font-medium py-2.5 sm:py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isLoading ? (
                 <>
@@ -272,7 +272,7 @@ export function TenantForm() {
               type="button"
               onClick={resetForm}
               disabled={isLoading}
-              className="bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full sm:w-auto bg-gray-200 text-gray-800 font-medium py-2.5 sm:py-2 px-4 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Reset
             </button>

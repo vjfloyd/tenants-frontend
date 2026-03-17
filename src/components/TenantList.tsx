@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { TenantResponse } from '@/api/tenants';
+import {TenantResponse, loadTenants, deleteTenant} from '@/api/tenants';
 
 export function TenantList() {
   const [tenants, setTenants] = useState<TenantResponse[]>([]);
@@ -9,25 +9,31 @@ export function TenantList() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Note: This is a placeholder for fetching tenants from your API
-    // You'll need to implement a GET endpoint or API service method
-    loadTenants();
+    loadTenantData();
   }, []);
 
-  const loadTenants = async () => {
+  const loadTenantData = async () => {
     try {
       setIsLoading(true);
-      // TODO: Implement GET request to fetch tenants
-      const response = await fetch('http://178.156.219.218/v1/tenants');
-      const data = await response.json();
+      const data = await loadTenants();
       setTenants(data);
-
     } catch (err) {
       setError(
         err instanceof Error ? err.message : 'Failed to load tenants'
       );
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const removeTenant = async (tenantId: string) => {
+    try {
+      await deleteTenant(tenantId);
+      loadTenantData();
+    } catch (err) {
+      setError(
+          err instanceof Error ? err.message : 'Failed to delete tenant'
+      );
     }
   };
 
@@ -57,39 +63,49 @@ export function TenantList() {
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
-      <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
-        <h2 className="text-lg font-semibold text-gray-900">Tenants</h2>
+      <div className="px-4 sm:px-6 py-3 sm:py-4 bg-gray-50 border-b border-gray-200">
+        <h2 className="text-base sm:text-lg font-semibold text-gray-900">Tenants</h2>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-100 border-b border-gray-200">
             <tr>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
+              <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold text-gray-900">
                 Name
               </th>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
+              <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold text-gray-900">
                 Floor
               </th>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
+              <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold text-gray-900">
                 Month
               </th>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
+              <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold text-gray-900">
                 Year
+              </th>
+              <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold text-gray-900">
+                Action
               </th>
             </tr>
           </thead>
           <tbody>
-            {tenants.map((tenant, index) => (
+            {tenants.map((tenant) => (
               <tr
-                key={tenant.id || index}
+                key={tenant.code}
                 className="border-b border-gray-200 hover:bg-gray-50 transition-colors"
               >
-                <td className="px-6 py-4 text-sm text-gray-900">
+                <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-900">
                   {tenant.name}
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-600">{tenant.floor}</td>
-                <td className="px-6 py-4 text-sm text-gray-600">{tenant.month}</td>
-                <td className="px-6 py-4 text-sm text-gray-600">{tenant.year}</td>
+                <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-600">{tenant.floor}</td>
+                <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-600">{tenant.month}</td>
+                <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-600">{tenant.year}</td>
+                <td className="px-3 sm:px-6 py-3 sm:py-4">
+                  <button type="button"
+                          onClick={() => removeTenant(tenant.code)}
+                          className="bg-blue-600 text-white px-3 py-1 rounded-md text-xs sm:text-sm hover:bg-blue-700 transition-colors"
+                  >
+                    Delete </button>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -98,4 +114,3 @@ export function TenantList() {
     </div>
   );
 }
-
