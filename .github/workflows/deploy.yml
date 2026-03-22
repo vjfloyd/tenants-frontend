@@ -62,6 +62,18 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             cd ${{ secrets.REMOTE_TARGET }}
-            # For standalone output, we don't need npm install on server as much,
-            # but we need to ensure PM2 starts the server.js
-            pm2 restart tenants-frontend || pm2 start node --name "tenants-frontend" -- server.js
+            # Check if PM2 is installed, if not, try to install it globally
+            if ! command -v pm2 &> /dev/null; then
+              echo "PM2 not found. Attempting to install..."
+              # Assuming the user has npm and permissions, or we use npx for a one-off
+              npm install -g pm2 || echo "Failed to install PM2 globally. Trying with npx..."
+            fi
+            
+            # Use PM2 to restart or start the standalone server
+            if command -v pm2 &> /dev/null; then
+              pm2 restart tenants-frontend || pm2 start node --name "tenants-frontend" -- server.js
+              pm2 save
+            else
+              echo "PM2 still not found. Starting with node in background as fallback..."
+              nohup node server.js > app.log 2>&1 &
+            fi
