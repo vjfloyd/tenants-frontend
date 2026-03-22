@@ -3,7 +3,6 @@
 import { useBillForm } from '@/hooks/useBillForm';
 import { BillDetailTab } from './tabs/BillDetailTab';
 import { ConsumptionTab } from './tabs/ConsumptionTab';
-import {calculateBill} from '@/api/tenants';
 
 export function BillForm() {
   const {

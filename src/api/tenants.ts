@@ -21,7 +21,8 @@ export interface ApiError {
   status?: number;
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://178.156.219.218';
+// const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://178.156.219.218';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4001';
 
 export async function createTenant(data: TenantFormData): Promise<void> {
   try {
@@ -30,6 +31,7 @@ export async function createTenant(data: TenantFormData): Promise<void> {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       body: JSON.stringify(data),
     });
 
@@ -52,7 +54,9 @@ export async function createTenant(data: TenantFormData): Promise<void> {
 
 export async function loadTenants(): Promise<TenantResponse[]> {
   try {
-    const response = await fetch(`${API_BASE_URL}/v1/tenants`);
+    const response = await fetch(`${API_BASE_URL}/v1/tenants`, {
+      credentials: 'include',
+    });
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
@@ -74,6 +78,7 @@ export async function deleteTenant(id: string): Promise<void> {
   try {
     await fetch(`${API_BASE_URL}/v1/tenants/${id}`, {
       method: 'DELETE',
+      credentials: 'include',
     });
   } catch (error) {
     if (error instanceof Error) {
@@ -106,6 +111,7 @@ export async function calculateBill(data: BillData): Promise<void> {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       body: JSON.stringify(data),
     });
 
