@@ -36,13 +36,19 @@ jobs:
           NODE_ENV: production
           NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
 
-      - name: Prepare standalone files
+      - name: Prepare deployment files
         run: |
-          mkdir -p deploy/public
-          mkdir -p deploy/.next/static
-          cp -r .next/standalone/* deploy/
-          cp -r public/* deploy/public/
-          cp -r .next/static deploy/.next/
+          mkdir -p deploy/
+          cp -r app deploy/
+          cp -r src deploy/
+          cp -r public deploy/
+          cp -r next.config.ts deploy/
+          cp -r tsconfig.json deploy/
+          cp -r package.json deploy/
+          cp -r package-lock.json deploy/
+          cp -r Dockerfile deploy/
+          cp -r docker-compose.yml deploy/
+          # Copy everything needed for the docker build
 
       - name: Deploy to Server
         uses: easingthemes/ssh-deploy@v5.1.0
@@ -54,7 +60,7 @@ jobs:
           TARGET: ${{ secrets.REMOTE_TARGET }}
           EXCLUDE: "/node_modules/, /.git/, /.github/"
 
-      - name: Restart Application
+      - name: Restart Application with Docker Compose
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -62,18 +68,12 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             cd ${{ secrets.REMOTE_TARGET }}
-            # Check if PM2 is installed, if not, try to install it globally
-            if ! command -v pm2 &> /dev/null; then
-              echo "PM2 not found. Attempting to install..."
-              # Assuming the user has npm and permissions, or we use npx for a one-off
-              npm install -g pm2 || echo "Failed to install PM2 globally. Trying with npx..."
-            fi
             
-            # Use PM2 to restart or start the standalone server
-            if command -v pm2 &> /dev/null; then
-              pm2 restart tenants-frontend || pm2 start node --name "tenants-frontend" -- server.js
-              pm2 save
-            else
-              echo "PM2 still not found. Starting with node in background as fallback..."
-              nohup node server.js > app.log 2>&1 &
-            fi
+            # Create .env file for docker-compose
+            echo "NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }}" > .env
+            
+            # Rebuild and restart the container
+            docker compose up -d --build
+            
+            # Optional: Cleanup old images to save space
+            docker image prune -f
