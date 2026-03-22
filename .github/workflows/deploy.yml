@@ -36,9 +36,13 @@ jobs:
           NODE_ENV: production
           NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
 
-      - name: Export static files
-        run: npm run export
-        continue-on-error: true
+      - name: Prepare standalone files
+        run: |
+          mkdir -p deploy/public
+          mkdir -p deploy/.next/static
+          cp -r .next/standalone/* deploy/
+          cp -r public/* deploy/public/
+          cp -r .next/static deploy/.next/
 
       - name: Deploy to Server
         uses: easingthemes/ssh-deploy@v5.1.0
@@ -46,28 +50,8 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
           REMOTE_HOST: ${{ secrets.SERVER_HOST }}
           REMOTE_USER: ${{ secrets.SERVER_USER }}
-          SOURCE: ".next/standalone/"
+          SOURCE: "deploy/"
           TARGET: ${{ secrets.REMOTE_TARGET }}
-          EXCLUDE: "/node_modules/, /.git/, /.github/"
-
-      - name: Copy Public and Static
-        uses: easingthemes/ssh-deploy@v5.1.0
-        with:
-          SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
-          REMOTE_HOST: ${{ secrets.SERVER_HOST }}
-          REMOTE_USER: ${{ secrets.SERVER_USER }}
-          SOURCE: "public/"
-          TARGET: "${{ secrets.REMOTE_TARGET }}/public/"
-          EXCLUDE: "/node_modules/, /.git/, /.github/"
-
-      - name: Copy Static
-        uses: easingthemes/ssh-deploy@v5.1.0
-        with:
-          SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
-          REMOTE_HOST: ${{ secrets.SERVER_HOST }}
-          REMOTE_USER: ${{ secrets.SERVER_USER }}
-          SOURCE: ".next/static/"
-          TARGET: "${{ secrets.REMOTE_TARGET }}/.next/static/"
           EXCLUDE: "/node_modules/, /.git/, /.github/"
 
       - name: Restart Application
