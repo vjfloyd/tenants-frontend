@@ -1,4 +1,4 @@
-name: Build and Deploy to Production
+name: Deploy to Production
 
 on:
   push:
@@ -8,95 +8,76 @@ on:
   workflow_dispatch:
 
 env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE22: true
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  build-and-push:
+  build-and-deploy:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Log in to the Container registry
-        uses: docker/login-action@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          node-version: '24'
+          cache: 'npm'
 
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@v5
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run lint
+        run: npm run lint
+
+      - name: Build application
+        run: npm run build
+        env:
+          NODE_ENV: production
+          NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
+
+      - name: Export static files
+        run: npm run export
+        continue-on-error: true
+
+      - name: Deploy to Server
+        uses: easingthemes/ssh-deploy@v5.1.0
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=raw,value=latest
-            type=sha,format=long
+          SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
+          REMOTE_HOST: ${{ secrets.SERVER_HOST }}
+          REMOTE_USER: ${{ secrets.SERVER_USER }}
+          SOURCE: ".next/standalone/"
+          TARGET: ${{ secrets.REMOTE_TARGET }}
+          EXCLUDE: "/node_modules/, /.git/, /.github/"
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+      - name: Copy Public and Static
+        uses: easingthemes/ssh-deploy@v5.1.0
         with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          build-args: |
-            NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
-            TENANTS_API=${{ secrets.TENANTS_API }}
+          SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
+          REMOTE_HOST: ${{ secrets.SERVER_HOST }}
+          REMOTE_USER: ${{ secrets.SERVER_USER }}
+          SOURCE: "public/"
+          TARGET: "${{ secrets.REMOTE_TARGET }}/public/"
+          EXCLUDE: "/node_modules/, /.git/, /.github/"
 
-  deploy:
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Copy docker-compose to server
-        uses: appleboy/scp-action@master
+      - name: Copy Static
+        uses: easingthemes/ssh-deploy@v5.1.0
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          source: "docker-compose.yaml"
-          target: "/opt/tenants-frontend/"
+          SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
+          REMOTE_HOST: ${{ secrets.SERVER_HOST }}
+          REMOTE_USER: ${{ secrets.SERVER_USER }}
+          SOURCE: ".next/static/"
+          TARGET: "${{ secrets.REMOTE_TARGET }}/.next/static/"
+          EXCLUDE: "/node_modules/, /.git/, /.github/"
 
-      - name: Deploy to Server via SSH
+      - name: Restart Application
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            mkdir -p ${{ secrets.REMOTE_TARGET }}
             cd ${{ secrets.REMOTE_TARGET }}
-            
-            # Log in to registry on server
-            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
-            
-            # Update docker-compose.yml
-            cat <<EOF > docker-compose.yml
-            services:
-              app:
-                container_name: tenants-frontend
-                image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-                ports:
-                  - "3000:3000"
-                restart: always
-                environment:
-                  - NODE_ENV=production
-                  - NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
-                  - TENANTS_API=${{ secrets.TENANTS_API }}
-            EOF
-
-            # Pull latest image and restart
-            docker compose pull
-            docker compose up -d
-            
-            # Cleanup old images
-            docker image prune -f
+            # For standalone output, we don't need npm install on server as much,
+            # but we need to ensure PM2 starts the server.js
+            pm2 restart tenants-frontend || pm2 start node --name "tenants-frontend" -- server.js
