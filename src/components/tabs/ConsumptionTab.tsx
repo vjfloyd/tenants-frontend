@@ -1,8 +1,8 @@
 'use client';
 
 import { ConsumptionData, UseBillFormState } from '@/hooks/useBillForm';
-import {loadTenants, TenantResponse, deleteTenant} from '@/api/tenants';
-import {useEffect, useState} from 'react';
+import {loadTenants} from '@/api/tenants';
+import {useEffect, useState, useCallback} from 'react';
 
 interface ConsumptionTabProps {
   formData: ConsumptionData;
@@ -13,17 +13,11 @@ interface ConsumptionTabProps {
 
 export function ConsumptionTab({ formData, setFormData, isLoading, onChange }: ConsumptionTabProps) {
 
-  const [tenants, setTenants] = useState<TenantResponse[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-     loadTenantData();
-  }, []);
-
-  const loadTenantData = async () => {
+  const loadTenantData = useCallback(async () => {
     try {
       const data = await loadTenants();
-      setTenants(data);
       
       // Initialize form state with tenants if it's empty
       setFormData(prev => {
@@ -48,7 +42,20 @@ export function ConsumptionTab({ formData, setFormData, isLoading, onChange }: C
           err instanceof Error ? err.message : 'Failed to load tenants'
       );
     }
-  };
+  }, [setFormData]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const loadData = async () => {
+      if (isMounted) {
+        await loadTenantData();
+      }
+    };
+    loadData();
+    return () => {
+      isMounted = false;
+    };
+  }, [loadTenantData]);
 
   return (
     <div className="space-y-4">

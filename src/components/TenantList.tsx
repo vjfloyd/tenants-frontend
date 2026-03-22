@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {TenantResponse, loadTenants, deleteTenant} from '@/api/tenants';
 
 export function TenantList() {
@@ -8,11 +8,7 @@ export function TenantList() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadTenantData();
-  }, []);
-
-  const loadTenantData = async () => {
+  const loadTenantData = useCallback(async () => {
     try {
       setIsLoading(true);
       const data = await loadTenants();
@@ -24,12 +20,16 @@ export function TenantList() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadTenantData();
+  }, [loadTenantData]);
 
   const removeTenant = async (tenantId: string) => {
     try {
       await deleteTenant(tenantId);
-      loadTenantData();
+      await loadTenantData();
     } catch (err) {
       setError(
           err instanceof Error ? err.message : 'Failed to delete tenant'

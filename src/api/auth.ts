@@ -1,5 +1,5 @@
 // src/api/auth.ts
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://178.156.219.218';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4001';
 
 export interface UserSession {
   id: string;
@@ -13,7 +13,10 @@ export interface UserSession {
  */
 export function signInWithProvider(provider: string = 'google'): void {
   // Frontend sends user to a backend auth endpoint
-  window.location.href = `${API_BASE_URL}/auth/${provider}`;
+  // We specify we want to be redirected back to /tenants after success
+  const currentOrigin = typeof window !== 'undefined' ? window.location.origin : '';
+  const redirectUrl = encodeURIComponent(`${currentOrigin}/tenants`);
+  window.location.href = `${API_BASE_URL}/auth/${provider}?redirect_to=${redirectUrl}`;
 }
 
 /**
@@ -21,7 +24,17 @@ export function signInWithProvider(provider: string = 'google'): void {
  */
 export async function getSession(): Promise<UserSession | null> {
   try {
-    const response = await fetch(`${API_BASE_URL}/auth/session`);
+    // Add cache-busting timestamp and explicit no-cache headers
+    const timestamp = Date.now();
+    const response = await fetch(`${API_BASE_URL}/auth/session?t=${timestamp}`, {
+      credentials: 'include',
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+      },
+    });
 
     if (!response.ok) {
       if (response.status === 401) {
@@ -42,11 +55,22 @@ export async function getSession(): Promise<UserSession | null> {
  */
 export async function signOut(): Promise<void> {
   try {
-    await fetch(`${API_BASE_URL}/auth/logout`, {
+    const timestamp = Date.now();
+    const response = await fetch(`${API_BASE_URL}/auth/logout?t=${timestamp}`, {
       method: 'POST',
+      credentials: 'include',
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+      },
     });
-    // Redirect to login or home after sign out
-    window.location.href = '/login';
+
+    if (!response.ok) {
+      console.error(`Sign out failed with status: ${response.status}`);
+    }
+    // The actual redirect will be handled by the caller or a reload
   } catch (error) {
     console.error('Error signing out:', error);
   }
