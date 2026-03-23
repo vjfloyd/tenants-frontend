@@ -3,12 +3,13 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 
-const EXTERNAL_API = 'http://178.156.219.218/v1/tenants';
+const API_BASE_URL = process.env.TENANTS_API || 'http://178.156.219.218/v1/tenants';
 
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const body
+        = await request.json();
 
     // Validate request body
     if (!body.name || typeof body.floor !== 'number' || typeof body.month !== 'number' || typeof body.year !== 'number') {
@@ -19,7 +20,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Forward request to external API
-    const upstream = await fetch(EXTERNAL_API, {
+    const upstream = await fetch(API_BASE_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
