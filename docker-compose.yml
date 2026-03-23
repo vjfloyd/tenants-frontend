@@ -9,3 +9,7 @@ services:
       - NODE_ENV=production
       - NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
       - TENANTS_API=${TENANTS_API}
+networks:
+  tenants-network:
+    name: tenants-network
+    external: true
