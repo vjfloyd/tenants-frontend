@@ -1,7 +1,7 @@
 services:
   app:
     container_name: tenants-frontend
-    image: hcr.io/vjfloyd/${DOCKER_IMAGE}:${IMAGE_TAG:-latest}
+    image: ghcr.io/vjfloyd/${DOCKER_IMAGE}:${IMAGE_TAG:-latest}
     ports:
       - "3000:3000"
     restart: always
