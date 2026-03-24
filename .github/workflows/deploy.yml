@@ -49,6 +49,7 @@ jobs:
           build-args: |
             NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
             TENANTS_API=${{ secrets.TENANTS_API }}
+            NEXT_PUBLIC_BUILD_ID=${{ github.sha }}
 
   deploy:
     needs: build-and-push
