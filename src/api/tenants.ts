@@ -21,8 +21,7 @@ export interface ApiError {
   status?: number;
 }
 
-// const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://178.156.219.218';
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4001';
+const API_BASE_URL = process.env.TENANTS_API || 'http://localhost:4001';
 
 export async function createTenant(data: TenantFormData): Promise<void> {
   try {
