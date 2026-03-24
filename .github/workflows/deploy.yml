@@ -82,7 +82,7 @@ jobs:
 
             # Pull latest image and restart
             docker compose pull
-            docker compose up -d
+            docker compose up -d --remove-orphans
             
             # Cleanup old images
             docker image prune -f
