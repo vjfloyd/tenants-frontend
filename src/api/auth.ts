@@ -1,5 +1,5 @@
 // src/api/auth.ts
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4001';
+const API_BASE_URL = process.env.TENANTS_API || 'http://localhost:4001';
 
 export interface UserSession {
   id: string;
