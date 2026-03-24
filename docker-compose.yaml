@@ -1,13 +1,16 @@
 services:
-  app:
+  tenants-frontend:
     container_name: tenants-frontend
     image: ghcr.io/vjfloyd/${DOCKER_IMAGE}:${IMAGE_TAG:-latest}
     ports:
       - "3000:3000"
+    env_file:
+      - .env
     restart: always
     environment:
-      - NODE_ENV=production
       - TENANTS_API=${TENANTS_API}
+    networks:
+      - tenants-network
 networks:
   tenants-network:
     name: tenants-network
