@@ -75,11 +75,17 @@ jobs:
             mkdir -p ${{ secrets.REMOTE_TARGET }}
             cd ${{ secrets.REMOTE_TARGET }}
             
+            # Export image tag for docker-compose.yaml
+            export IMAGE_TAG=${{ github.sha }}
+            export DOCKER_IMAGE=tenants-frontend
+            
+            echo "IMAGE NAME ${{ env.IMAGE_NAME }} with tag $IMAGE_TAG"
             # Log in to registry on server
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin          
 
-            # Pull latest image and restart
+            # Pull image and restart
             docker compose pull tenants-frontend
+            docker compose down tenants-frontend
             docker compose up -d --remove-orphans
             
             # Cleanup old images
