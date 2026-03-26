@@ -58,7 +58,7 @@ export default function SignUpPage() {
           </div>
         </div>
 
-        <form className="mt-4 space-y-6" action="#" method="POST">
+        <form className="mt-4 space-y-6" onSubmit={(e) => e.preventDefault()}>
           <div className="-space-y-px rounded-md shadow-sm">
             <div>
               <label htmlFor="full-name" className="sr-only">Full Name</label>
