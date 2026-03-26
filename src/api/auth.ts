@@ -1,5 +1,15 @@
 // src/api/auth.ts
-const API_BASE_URL = process.env.TENANTS_API || 'http://localhost:4001';
+function normalizeBaseUrl(rawUrl: string): string {
+  const withProtocol = /^http?:\/\//i.test(rawUrl) ? rawUrl : `http://${rawUrl}`;
+  return withProtocol.replace(/\/+$/, '');
+}
+
+const resolvedBaseUrl =
+  process.env.TENANTS_API ||
+  (typeof window === 'undefined' ? process.env.TENANTS_API : undefined) ||
+  'http://localhost:4005';
+
+const API_BASE_URL = normalizeBaseUrl(resolvedBaseUrl);
 
 export interface UserSession {
   id: string;
