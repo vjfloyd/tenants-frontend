@@ -2,6 +2,10 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  env: {
+    // Allow projects using TENANTS_API to still work in browser code.
+    TENANTS_API: process.env.TENANTS_API,
+  },
   // This helps Next.js recognize older/newer builds better
   generateBuildId: async () => {
     // We use an environment variable (e.g., Git SHA) to ensure a stable ID across containers

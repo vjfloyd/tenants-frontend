@@ -21,7 +21,7 @@ export interface ApiError {
   status?: number;
 }
 
-const API_BASE_URL = process.env.TENANTS_API || 'http://localhost:4001';
+const API_BASE_URL = process.env.TENANTS_API || 'http://localhost:4005';
 
 export async function createTenant(data: TenantFormData): Promise<void> {
   try {
