@@ -44,6 +44,9 @@ jobs:
         with:
           context: .
           push: true
+          build-args: |
+            TENANTS_API=${{ secrets.TENANTS_API }}
+            NEXT_PUBLIC_BUILD_ID=${{ github.sha }}
           tags: |
             ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest
             ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ github.sha }}      
@@ -79,6 +82,7 @@ jobs:
             export IMAGE_TAG=${{ github.sha }}
             export DOCKER_IMAGE=tenants-frontend
             export COMPOSE_PROJECT_NAME=tenants-frontend
+            export TENANTS_API=${{ secrets.TENANTS_API }}
             
             echo "IMAGE NAME ${{ env.IMAGE_NAME }} with tag $IMAGE_TAG"
             # Log in to registry on server
