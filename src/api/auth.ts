@@ -5,10 +5,14 @@ function normalizeBaseUrl(rawUrl: string): string {
 }
 
 const resolvedBaseUrl =
-  process.env.NEXT_PUBLIC_TENANTS_API || process.env.TENANTS_API || 'http://localhost:4005';
+  process.env.NEXT_PUBLIC_TENANTS_API || process.env.TENANTS_API;
 
-const API_BASE_URL = normalizeBaseUrl(resolvedBaseUrl);
-console.log('[DEBUG] Auth API_BASE_URL:', process.env.TENANTS_API);
+if (!resolvedBaseUrl) {
+  console.warn('[WARNING] No API URL found in environment (NEXT_PUBLIC_TENANTS_API or TENANTS_API)');
+}
+
+const API_BASE_URL = normalizeBaseUrl(resolvedBaseUrl || 'http://localhost:4001');
+console.log('[DEBUG] Auth API_BASE_URL:', API_BASE_URL);
 
 export interface UserSession {
   id: string;
