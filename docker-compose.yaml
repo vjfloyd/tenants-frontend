@@ -1,6 +1,6 @@
 services:
   tenants-frontend:
-    image: ghcr.io/vjfloyd/${DOCKER_IMAGE}:${IMAGE_TAG:-latest}
+    image: ghcr.io/${IMAGE_NAME}:${IMAGE_TAG:-latest}
     ports:
       - "3000:3000"
     env_file:
