@@ -3,7 +3,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 
-const API_BASE_URL = process.env.TENANTS_API || 'http://178.156.219.218/v1/tenants';
+const API_BASE_URL = process.env.NEXT_PUBLIC_TENANTS_API || 'http://localhost:4005';
+console.log('[DEBUG] API Route API_BASE_URL:', API_BASE_URL);
 
 
 export async function POST(request: NextRequest) {
