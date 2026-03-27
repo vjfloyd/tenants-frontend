@@ -3,7 +3,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 
-const API_BASE_URL = process.env.TENANTS_API || 'http://localhost:4005';
+const API_BASE_URL = process.env.NEXT_PUBLIC_TENANTS_API || process.env.TENANTS_API || 'http://localhost:4005';
 console.log('[DEBUG] API Route API_BASE_URL:', API_BASE_URL);
 
 

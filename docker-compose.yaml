@@ -8,6 +8,8 @@ services:
     restart: always
     environment:
       - TENANTS_API=${TENANTS_API}
+      - NEXT_PUBLIC_TENANTS_API=${NEXT_PUBLIC_TENANTS_API}
+      - NEXT_PUBLIC_BUILD_ID=${NEXT_PUBLIC_BUILD_ID}
     networks:
       - tenants-network
 networks:

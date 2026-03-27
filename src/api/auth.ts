@@ -5,7 +5,7 @@ function normalizeBaseUrl(rawUrl: string): string {
 }
 
 const resolvedBaseUrl =
-  process.env.TENANTS_API || 'http://localhost:4005';
+  process.env.NEXT_PUBLIC_TENANTS_API || process.env.TENANTS_API || 'http://localhost:4005';
 
 const API_BASE_URL = normalizeBaseUrl(resolvedBaseUrl);
 console.log('[DEBUG] Auth API_BASE_URL:', process.env.TENANTS_API);
