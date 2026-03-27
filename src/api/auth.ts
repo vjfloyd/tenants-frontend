@@ -5,11 +5,10 @@ function normalizeBaseUrl(rawUrl: string): string {
 }
 
 const resolvedBaseUrl =
-  process.env.TENANTS_API ||
-  (typeof window === 'undefined' ? process.env.TENANTS_API : undefined) ||
-  'http://localhost:4005';
+  process.env.TENANTS_API || 'http://localhost:4005';
 
 const API_BASE_URL = normalizeBaseUrl(resolvedBaseUrl);
+console.log('[DEBUG] Auth API_BASE_URL:', process.env.TENANTS_API);
 
 export interface UserSession {
   id: string;

@@ -25,11 +25,6 @@ COPY . .
 # ENV NEXT_TELEMETRY_DISABLED 1
 
 # Provide build-time env vars
-ARG TENANTS_API
-ENV TENANTS_API=$TENANTS_API
-ARG NEXT_PUBLIC_BUILD_ID
-ENV NEXT_PUBLIC_BUILD_ID=$NEXT_PUBLIC_BUILD_ID
-
 RUN npm run build
 
 # Production image, copy all the files and run next

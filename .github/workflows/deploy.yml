@@ -46,7 +46,6 @@ jobs:
           push: true
           build-args: |
             TENANTS_API=${{ secrets.TENANTS_API }}
-            NEXT_PUBLIC_BUILD_ID=${{ github.sha }}
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}      
