@@ -11,7 +11,10 @@ if (!resolvedBaseUrl) {
   console.warn('[WARNING] No API URL found in environment (NEXT_PUBLIC_TENANTS_API or TENANTS_API)');
 }
 
-const API_BASE_URL = normalizeBaseUrl(resolvedBaseUrl || 'http://localhost:4001');
+const API_BASE_URL = normalizeBaseUrl(resolvedBaseUrl || '');
+if (!API_BASE_URL) {
+  console.error('[CRITICAL] API_BASE_URL is empty. Environment variables NEXT_PUBLIC_TENANTS_API or TENANTS_API must be set.');
+}
 console.log('[DEBUG] Auth API_BASE_URL:', API_BASE_URL);
 
 export interface UserSession {
