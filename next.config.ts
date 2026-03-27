@@ -4,7 +4,8 @@ const nextConfig: NextConfig = {
   output: 'standalone',
   env: {
     // Allow projects using TENANTS_API to still work in browser code.
-    TENANTS_API: process.env.TENANTS_API,
+    TENANTS_API: process.env.TENANTS_API || process.env.NEXT_PUBLIC_TENANTS_API,
+    NEXT_PUBLIC_TENANTS_API: process.env.NEXT_PUBLIC_TENANTS_API || process.env.TENANTS_API,
   },
   // This helps Next.js recognize older/newer builds better
   generateBuildId: async () => {

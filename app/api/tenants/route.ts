@@ -4,7 +4,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const API_BASE_URL =
-    process.env.NEXT_PUBLIC_TENANTS_API || process.env.TENANTS_API || 'http://localhost:4001';
+    process.env.NEXT_PUBLIC_TENANTS_API || process.env.TENANTS_API || '';
+if (!API_BASE_URL) {
+  console.error('[CRITICAL] API Route API_BASE_URL is empty.');
+}
 console.log('[DEBUG] API Route API_BASE_URL:', API_BASE_URL);
 
 

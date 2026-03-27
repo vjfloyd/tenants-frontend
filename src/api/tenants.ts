@@ -22,7 +22,10 @@ export interface ApiError {
 }
 
 const API_BASE_URL =
-    process.env.NEXT_PUBLIC_TENANTS_API || process.env.TENANTS_API || 'http://localhost:4001';
+    process.env.NEXT_PUBLIC_TENANTS_API || process.env.TENANTS_API || '';
+if (!API_BASE_URL) {
+  console.error('[CRITICAL] Tenants API_BASE_URL is empty.');
+}
 console.log('[DEBUG] Tenants API_BASE_URL:', API_BASE_URL);
 
 export async function createTenant(data: TenantFormData): Promise<void> {
